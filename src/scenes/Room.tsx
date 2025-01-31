@@ -1,38 +1,20 @@
-import { useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
-import { ContactShadows, Environment } from '@react-three/drei'
-import { Group } from 'three'
-import { Computer } from '../components/Computer/Computer'
-import { RoomStructure } from '../components/Room/Base/RoomStructure'
-import { useFirstPersonControls } from '../hooks/useFirstPersonControls'
+import { Suspense } from 'react'
+import { Canvas } from '@react-three/fiber'
+import { Scene3D } from './Scene3D'
 
 export function Room() {
-  const roomRef = useRef<Group>(null)
-  const controls = useFirstPersonControls()
-
   return (
-    <>
-      {/* Ambiente */}
-      <Environment preset="sunset" />
-      
-      <group ref={roomRef}>
-        {/* Struttura base della stanza */}
-        <RoomStructure />
-
-        {/* Computer interattivo */}
-        <Computer />
-
-        {/* Ombre di contatto */}
-        <ContactShadows
-          position={[0, 0.01, 0]}
-          opacity={0.4}
-          scale={12}
-          blur={2}
-          far={4}
-          resolution={1024}
-          color="#000000"
-        />
-      </group>
-    </>
+    <Canvas
+      shadows
+      camera={{
+        position: [0, 1.7, 0],
+        fov: 75
+      }}
+      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+    >
+      <Suspense fallback={null}>
+        <Scene3D />
+      </Suspense>
+    </Canvas>
   )
 }
