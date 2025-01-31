@@ -6,11 +6,24 @@ import { RoomStructure } from '../components/Room/Base/RoomStructure'
 import { CameraControls } from '../components/Controls/CameraControls'
 import { ENVIRONMENT_CONFIG } from '../config/environment.config'
 
+// Componente di debug per visualizzare le coordinate
+function DebugAxes() {
+  return (
+    <group>
+      <axesHelper args={[5]} />
+      <gridHelper args={[10, 10]} />
+    </group>
+  )
+}
+
 export function Scene3D() {
   const roomRef = useRef<Group>(null)
 
   return (
     <>
+      {/* Debug helpers */}
+      {process.env.NODE_ENV === 'development' && <DebugAxes />}
+
       {/* Controlli camera */}
       <CameraControls />
 
