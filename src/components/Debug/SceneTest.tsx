@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
-export function SceneTest() {
+// Componente interno che usa hooks R3F
+function SceneDebugInfo() {
   const { scene, camera } = useThree()
   const [debugInfo, setDebugInfo] = useState({
     fps: 0,
@@ -13,7 +14,6 @@ export function SceneTest() {
   })
 
   useEffect(() => {
-    // Aggiorna le info di debug ogni secondo
     const interval = setInterval(() => {
       const renderer = scene.renderer as THREE.WebGLRenderer
       if (renderer) {
@@ -30,9 +30,6 @@ export function SceneTest() {
     return () => clearInterval(interval)
   }, [scene])
 
-  // Mostra le info solo in development
-  if (process.env.NODE_ENV !== 'development') return null
-
   return (
     <div className="fixed bottom-4 left-4 bg-black bg-opacity-75 text-white p-4 rounded font-mono text-sm">
       <div>FPS: {debugInfo.fps}</div>
@@ -43,4 +40,12 @@ export function SceneTest() {
       <div>Camera Pos: {JSON.stringify(camera.position.toArray().map(n => n.toFixed(2)))}</div>
     </div>
   )
+}
+
+// Componente wrapper che controlla l'ambiente
+export function SceneTest() {
+  // Mostra le info solo in development
+  if (process.env.NODE_ENV !== 'development') return null
+
+  return <SceneDebugInfo />
 }

@@ -10,6 +10,14 @@ type AnimationConfig = {
 }
 
 export const useAnimation = () => {
+  // Verifica che siamo all'interno di un contesto Canvas
+  try {
+    useFrame(() => {})
+  } catch (e) {
+    console.warn('useAnimation deve essere usato all'interno di un componente Canvas')
+    return { animate: () => {} }
+  }
+
   const animationRef = useRef<{
     target: Object3D | null
     startPos: Vector3 | null

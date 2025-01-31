@@ -43,7 +43,7 @@ export function RoomStructure() {
         position={[0, 0, 0]}
       >
         <planeGeometry args={[8, 12]} />
-        <primitive object={floorMaterial} />
+        <primitive object={materials.floor} />
       </mesh>
 
       {/* Pareti */}
@@ -52,23 +52,23 @@ export function RoomStructure() {
         {/* Parte superiore */}
         <mesh receiveShadow position={[0, 1.25, 0]}>
           <boxGeometry args={[8, 0.5, 0.2]} />
-          <primitive object={wallMaterial} />
+          <primitive object={materials.wall} />
         </mesh>
         
         {/* Parti laterali */}
         <mesh receiveShadow position={[-2.5, 0, 0]}>
           <boxGeometry args={[3, 2, 0.2]} />
-          <primitive object={wallMaterial} />
+          <primitive object={materials.wall} />
         </mesh>
         <mesh receiveShadow position={[2.5, 0, 0]}>
           <boxGeometry args={[3, 2, 0.2]} />
-          <primitive object={wallMaterial} />
+          <primitive object={materials.wall} />
         </mesh>
         
         {/* Parte inferiore */}
         <mesh receiveShadow position={[0, -1.25, 0]}>
           <boxGeometry args={[8, 0.5, 0.2]} />
-          <primitive object={wallMaterial} />
+          <primitive object={materials.wall} />
         </mesh>
       </group>
 
@@ -79,7 +79,7 @@ export function RoomStructure() {
         rotation={[0, Math.PI / 2, 0]}
       >
         <boxGeometry args={[12, 3, 0.2]} />
-        <primitive object={wallMaterial} />
+        <primitive object={materials.wall} />
       </mesh>
 
       {/* Parete destra */}
@@ -89,7 +89,7 @@ export function RoomStructure() {
         rotation={[0, -Math.PI / 2, 0]}
       >
         <boxGeometry args={[12, 3, 0.2]} />
-        <primitive object={wallMaterial} />
+        <primitive object={materials.wall} />
       </mesh>
 
       {/* Effetto volumetrico dalla finestra */}
@@ -99,20 +99,12 @@ export function RoomStructure() {
       >
         <planeGeometry args={[2, 2]} />
         <meshBasicMaterial 
-          color="#ffd4a5" 
+          color="#ffffff" 
           transparent 
           opacity={0.1} 
           side={THREE.DoubleSide}
-          blending={THREE.AdditiveBlending}
         />
       </mesh>
-
-      {/* Luce di riempimento per le ombre */}
-      <pointLight
-        position={[-2, 2, 2]}
-        intensity={0.2}
-        color="#ffecd1"
-      />
     </group>
   )
 }

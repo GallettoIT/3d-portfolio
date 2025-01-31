@@ -12,7 +12,8 @@ const CAMERA_HEIGHT = 1.7
 const FOOTSTEP_INTERVAL = 0.5
 
 export function useFirstPersonControls() {
-  const { camera, gl } = useThree()
+  const three = useThree()
+  const { camera, gl } = three
   const controls = useRef<PointerLockControls | null>(null)
   const isLocked = useRef(false)
   const moveForward = useRef(false)
@@ -24,9 +25,13 @@ export function useFirstPersonControls() {
   const direction = useRef(new Vector3())
 
   useEffect(() => {
+    if (!camera || !gl) return;  // Early return if Canvas context is not ready
+    
     controls.current = new PointerLockControls(camera, gl.domElement)
 
     const onKeyDown = (event: KeyboardEvent) => {
+      if (!controls.current?.isLocked) return;  // Don't process keys if controls aren't locked
+      
       switch (event.code) {
         case 'ArrowUp':
         case 'KeyW':
@@ -86,7 +91,7 @@ export function useFirstPersonControls() {
     
     // Handler per quando i controlli vengono bloccati/sbloccati
     const onLockChange = () => {
-      console.log('Lock changed:', controls.current?.isLocked)
+      isLocked.current = controls.current?.isLocked || false
     }
 
     document.addEventListener('click', onClick)
@@ -105,89 +110,39 @@ export function useFirstPersonControls() {
     }
   }, [camera, gl])
 
-  const lastFootstep = useRef(0)
-  const headBobPhase = useRef(0)
+  useFrame((_, delta) => {
+    if (!controls.current?.isLocked) return
 
-  useFrame((state, delta) => {
-    if (controls.current?.isLocked) {
-      // Applica la gravità
-      velocity.current.y -= GRAVITY * delta
+    // Update velocity
+    velocity.current.y -= GRAVITY * delta
 
-      // Aggiorna la direzione del movimento
-      direction.current.z = Number(moveForward.current) - Number(moveBackward.current)
-      direction.current.x = Number(moveRight.current) - Number(moveLeft.current)
-      direction.current.normalize()
+    // Update direction
+    direction.current.z = Number(moveForward.current) - Number(moveBackward.current)
+    direction.current.x = Number(moveRight.current) - Number(moveLeft.current)
+    direction.current.normalize()
 
-      // Calcola la velocità effettiva
-      const isMoving = moveForward.current || moveBackward.current || moveLeft.current || moveRight.current
-      const currentSpeed = isMoving ? SPEED : 0
+    // Move the camera
+    if (moveForward.current || moveBackward.current) {
+      camera.translateZ(direction.current.z * SPEED * delta)
+    }
+    if (moveLeft.current || moveRight.current) {
+      camera.translateX(direction.current.x * SPEED * delta)
+    }
 
-      // Applica il movimento con accelerazione/decelerazione
-      velocity.current.x = THREE.MathUtils.lerp(
-        velocity.current.x,
-        -direction.current.x * currentSpeed,
-        0.1
-      )
-      velocity.current.z = THREE.MathUtils.lerp(
-        velocity.current.z,
-        -direction.current.z * currentSpeed,
-        0.1
-      )
+    // Apply gravity and jumping
+    camera.position.y += velocity.current.y * delta
 
-      // Muovi la camera
-      controls.current.moveRight(-velocity.current.x * delta)
-      controls.current.moveForward(-velocity.current.z * delta)
-
-      // Aggiorna la posizione Y
-      camera.position.y += velocity.current.y * delta
-
-      // Head bobbing
-      if (isMoving && canJump.current) {
-        headBobPhase.current += delta * HEAD_BOB_SPEED
-        const bobOffset = Math.sin(headBobPhase.current) * HEAD_BOB_INTENSITY
-        camera.position.y = CAMERA_HEIGHT + bobOffset
-
-        // Footstep sound timing
-        if (state.clock.getElapsedTime() - lastFootstep.current > FOOTSTEP_INTERVAL) {
-          // Qui potremmo aggiungere il suono dei passi
-          lastFootstep.current = state.clock.getElapsedTime()
-        }
-      } else {
-        // Reset head bob quando fermi
-        headBobPhase.current = 0
-        if (canJump.current) {
-          camera.position.y = THREE.MathUtils.lerp(camera.position.y, CAMERA_HEIGHT, 0.1)
-        }
-      }
-
-      // Collisione con il pavimento
-      if (camera.position.y < CAMERA_HEIGHT) {
-        velocity.current.y = 0
-        camera.position.y = CAMERA_HEIGHT
-        canJump.current = true
-      }
-
-      // Limiti della stanza con smussamento
-      const ROOM_SIZE = 1.9
-      const WALL_SMOOTHING = 0.1
-      
-      if (Math.abs(camera.position.x) > ROOM_SIZE - WALL_SMOOTHING) {
-        camera.position.x = THREE.MathUtils.lerp(
-          camera.position.x,
-          Math.sign(camera.position.x) * (ROOM_SIZE - WALL_SMOOTHING),
-          0.2
-        )
-      }
-      
-      if (Math.abs(camera.position.z) > ROOM_SIZE - WALL_SMOOTHING) {
-        camera.position.z = THREE.MathUtils.lerp(
-          camera.position.z,
-          Math.sign(camera.position.z) * (ROOM_SIZE - WALL_SMOOTHING),
-          0.2
-        )
-      }
+    // Ground check and collision
+    if (camera.position.y < CAMERA_HEIGHT) {
+      velocity.current.y = 0
+      camera.position.y = CAMERA_HEIGHT
+      canJump.current = true
     }
   })
 
-  return controls
+  return {
+    isLocked: isLocked.current,
+    velocity: velocity.current,
+    direction: direction.current
+  }
 }
