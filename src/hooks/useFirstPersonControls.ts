@@ -14,6 +14,7 @@ const FOOTSTEP_INTERVAL = 0.5
 export function useFirstPersonControls() {
   const { camera, gl } = useThree()
   const controls = useRef<PointerLockControls | null>(null)
+  const isLocked = useRef(false)
   const moveForward = useRef(false)
   const moveBackward = useRef(false)
   const moveLeft = useRef(false)
@@ -78,14 +79,28 @@ export function useFirstPersonControls() {
 
     // Click handler per attivare i controlli
     const onClick = () => {
-      controls.current?.lock()
+      if (controls.current && !controls.current.isLocked) {
+        controls.current.lock()
+      }
     }
+    
+    // Handler per quando i controlli vengono bloccati/sbloccati
+    const onLockChange = () => {
+      console.log('Lock changed:', controls.current?.isLocked)
+    }
+
     document.addEventListener('click', onClick)
+    document.addEventListener('pointerlockchange', onLockChange)
+    document.addEventListener('mozpointerlockchange', onLockChange)
+    document.addEventListener('webkitpointerlockchange', onLockChange)
 
     return () => {
       document.removeEventListener('keydown', onKeyDown)
       document.removeEventListener('keyup', onKeyUp)
       document.removeEventListener('click', onClick)
+      document.removeEventListener('pointerlockchange', onLockChange)
+      document.removeEventListener('mozpointerlockchange', onLockChange)
+      document.removeEventListener('webkitpointerlockchange', onLockChange)
       controls.current?.dispose()
     }
   }, [camera, gl])
