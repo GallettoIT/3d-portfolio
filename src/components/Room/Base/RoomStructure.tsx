@@ -1,27 +1,24 @@
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Environment } from '@react-three/drei'
 import * as THREE from 'three'
 
 export function RoomStructure() {
   // Materiali
-  const wallMaterial = new THREE.MeshStandardMaterial({
-    color: '#e6e6e6',
-    roughness: 0.9,
-    metalness: 0.1
-  })
-
-  const floorMaterial = new THREE.MeshStandardMaterial({
-    color: '#d4cdc5',  // Colore parquet
-    roughness: 0.8,
-    metalness: 0.1
-  })
+  const materials = useMemo(() => ({
+    wall: new THREE.MeshStandardMaterial({
+      color: '#e6e6e6',
+      roughness: 0.9,
+      metalness: 0.1
+    }),
+    floor: new THREE.MeshStandardMaterial({
+      color: '#d4cdc5',  // Colore parquet
+      roughness: 0.8,
+      metalness: 0.1
+    })
+  }), [])
 
   return (
     <group>
-      {/* Ambiente */}
-      <Environment preset="sunset" />
-      
       {/* Illuminazione */}
       <ambientLight intensity={0.4} color="#b4c4e4" />
       
