@@ -14,7 +14,7 @@ export const useAnimation = () => {
   try {
     useFrame(() => {})
   } catch (e) {
-    console.warn('useAnimation deve essere usato all'interno di un componente Canvas')
+    console.warn("useAnimation deve essere usato all'interno di un componente Canvas")
     return { animate: () => {} }
   }
 
