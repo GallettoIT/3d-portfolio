@@ -1,10 +1,19 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, Suspense } from 'react'
 import { ContactShadows, Environment } from '@react-three/drei'
 import { Group } from 'three'
 import { Computer } from '../components/Computer/Computer'
 import { RoomStructure } from '../components/Room/Base/RoomStructure'
 import { useFirstPersonControls } from '../hooks/useFirstPersonControls'
 import { ENVIRONMENT_CONFIG } from '../config/environment.config'
+
+// Componente separato per l'environment per gestire meglio il caricamento
+function EnvironmentWrapper() {
+  return (
+    <Suspense fallback={null}>
+      <Environment preset="sunset" />
+    </Suspense>
+  )
+}
 
 export function Scene3D() {
   const roomRef = useRef<Group>(null)
@@ -50,8 +59,8 @@ export function Scene3D() {
         />
       </group>
 
-      {/* Environment - renderizzato per ultimo e con preset semplice */}
-      <Environment preset="sunset" />
+      {/* Environment - renderizzato per ultimo e wrappato in Suspense */}
+      <EnvironmentWrapper />
     </>
   )
 }
