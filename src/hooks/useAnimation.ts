@@ -1,7 +1,8 @@
 import { useFrame } from '@react-three/fiber'
 import { useRef, useCallback } from 'react'
 import { Object3D, Vector3, Euler } from 'three'
-import { lerp } from 'three/src/math/MathUtils'
+import { MathUtils } from 'three'
+const { lerp } = MathUtils
 
 type AnimationConfig = {
   duration?: number

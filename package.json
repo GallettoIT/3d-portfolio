@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "clean": "rm -rf dist node_modules",
+    "reinstall": "npm run clean && npm install",
+    "start": "npm run dev",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@react-three/drei": "^9.97.0",

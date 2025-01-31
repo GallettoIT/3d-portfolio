@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { PerspectiveCamera, Environment, ContactShadows, OrbitControls } from '@react-three/drei'
+import { Environment, ContactShadows, OrbitControls } from '@react-three/drei'
 import { Group } from 'three'
 import { Computer } from '../components/Computer/Computer'
 
@@ -55,7 +55,7 @@ export function Room() {
     // Esempio: leggera oscillazione della luce ambientale
     state.scene.traverse((object) => {
       if (object.type === 'AmbientLight') {
-        object.intensity = 0.5 + Math.sin(time) * 0.05
+        (object as THREE.AmbientLight).intensity = 0.5 + Math.sin(time) * 0.05
       }
     })
   })

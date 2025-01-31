@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useGLTF } from '@react-three/drei'
-import { Mesh, Group } from 'three'
+import { Group } from 'three'
 import { useInteraction } from '../../hooks/useInteraction'
 import { useAnimation } from '../../hooks/useAnimation'
 

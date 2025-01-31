@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react'
-import { Object3D } from 'three'
 
 type InteractionState = {
   isInteracting: boolean
