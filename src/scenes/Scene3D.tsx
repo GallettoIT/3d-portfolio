@@ -1,26 +1,19 @@
-import { useRef, useEffect, Suspense } from 'react'
-import { ContactShadows, Environment } from '@react-three/drei'
+import { useRef } from 'react'
+import { ContactShadows } from '@react-three/drei'
 import { Group } from 'three'
 import { Computer } from '../components/Computer/Computer'
 import { RoomStructure } from '../components/Room/Base/RoomStructure'
-import { useFirstPersonControls } from '../hooks/useFirstPersonControls'
+import { CameraControls } from '../components/Controls/CameraControls'
 import { ENVIRONMENT_CONFIG } from '../config/environment.config'
-
-// Componente separato per l'environment
-function EnvironmentWrapper() {
-  return (
-    <Suspense fallback={null}>
-      <Environment preset="sunset" />
-    </Suspense>
-  )
-}
 
 export function Scene3D() {
   const roomRef = useRef<Group>(null)
-  useFirstPersonControls() // Ora ritorna i controlli ma non li memorizziamo
 
   return (
     <>
+      {/* Controlli camera */}
+      <CameraControls />
+
       {/* Luci di base */}
       <ambientLight 
         intensity={ENVIRONMENT_CONFIG.lighting.ambient.intensity} 
@@ -33,21 +26,22 @@ export function Scene3D() {
         castShadow
       />
       
+      {/* Contenuto della scena */}
       <group ref={roomRef}>
         <RoomStructure />
         <Computer />
-        <ContactShadows
-          position={[0, 0.01, 0]}
-          opacity={0.4}
-          scale={12}
-          blur={2}
-          far={4}
-          resolution={1024}
-          color="#000000"
-        />
       </group>
 
-      <EnvironmentWrapper />
+      {/* Effetti */}
+      <ContactShadows
+        position={[0, 0.01, 0]}
+        opacity={0.4}
+        scale={12}
+        blur={2}
+        far={4}
+        resolution={1024}
+        color="#000000"
+      />
     </>
   )
 }

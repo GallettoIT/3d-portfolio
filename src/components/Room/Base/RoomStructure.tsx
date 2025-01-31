@@ -1,41 +1,24 @@
-import { useRef, useMemo } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useMemo } from 'react'
 import * as THREE from 'three'
+import { ENVIRONMENT_CONFIG } from '../../../config/environment.config'
 
 export function RoomStructure() {
   // Materiali
   const materials = useMemo(() => ({
     wall: new THREE.MeshStandardMaterial({
-      color: '#e6e6e6',
-      roughness: 0.9,
-      metalness: 0.1
+      color: ENVIRONMENT_CONFIG.materials.walls.color,
+      roughness: ENVIRONMENT_CONFIG.materials.walls.roughness,
+      metalness: ENVIRONMENT_CONFIG.materials.walls.metalness
     }),
     floor: new THREE.MeshStandardMaterial({
-      color: '#d4cdc5',  // Colore parquet
-      roughness: 0.8,
-      metalness: 0.1
+      color: ENVIRONMENT_CONFIG.materials.floor.color,
+      roughness: ENVIRONMENT_CONFIG.materials.floor.roughness,
+      metalness: ENVIRONMENT_CONFIG.materials.floor.metalness
     })
   }), [])
 
   return (
     <group>
-      {/* Illuminazione */}
-      <ambientLight intensity={0.4} color="#b4c4e4" />
-      
-      {/* Luce dalla finestra */}
-      <directionalLight
-        position={[0, 2, -4]}
-        intensity={1.2}
-        color="#ffd4a5"
-        castShadow
-        shadow-mapSize={[1024, 1024]}
-      >
-        <orthographicCamera 
-          attach="shadow-camera" 
-          args={[-10, 10, 10, -10]} 
-        />
-      </directionalLight>
-
       {/* Pavimento */}
       <mesh 
         receiveShadow 
@@ -47,32 +30,14 @@ export function RoomStructure() {
       </mesh>
 
       {/* Pareti */}
-      {/* Parete posteriore con finestra */}
-      <group position={[0, 1.5, -6]}>
-        {/* Parte superiore */}
-        <mesh receiveShadow position={[0, 1.25, 0]}>
-          <boxGeometry args={[8, 0.5, 0.2]} />
-          <primitive object={materials.wall} />
-        </mesh>
-        
-        {/* Parti laterali */}
-        <mesh receiveShadow position={[-2.5, 0, 0]}>
-          <boxGeometry args={[3, 2, 0.2]} />
-          <primitive object={materials.wall} />
-        </mesh>
-        <mesh receiveShadow position={[2.5, 0, 0]}>
-          <boxGeometry args={[3, 2, 0.2]} />
-          <primitive object={materials.wall} />
-        </mesh>
-        
-        {/* Parte inferiore */}
-        <mesh receiveShadow position={[0, -1.25, 0]}>
-          <boxGeometry args={[8, 0.5, 0.2]} />
-          <primitive object={materials.wall} />
-        </mesh>
-      </group>
+      <mesh 
+        receiveShadow 
+        position={[0, 1.5, -6]}
+      >
+        <boxGeometry args={[8, 3, 0.2]} />
+        <primitive object={materials.wall} />
+      </mesh>
 
-      {/* Parete sinistra */}
       <mesh 
         receiveShadow 
         position={[-4, 1.5, 0]} 
@@ -82,7 +47,6 @@ export function RoomStructure() {
         <primitive object={materials.wall} />
       </mesh>
 
-      {/* Parete destra */}
       <mesh 
         receiveShadow 
         position={[4, 1.5, 0]} 
@@ -90,20 +54,6 @@ export function RoomStructure() {
       >
         <boxGeometry args={[12, 3, 0.2]} />
         <primitive object={materials.wall} />
-      </mesh>
-
-      {/* Effetto volumetrico dalla finestra */}
-      <mesh 
-        position={[0, 1.5, -5.9]} 
-        rotation={[0, 0, 0]}
-      >
-        <planeGeometry args={[2, 2]} />
-        <meshBasicMaterial 
-          color="#ffffff" 
-          transparent 
-          opacity={0.1} 
-          side={THREE.DoubleSide}
-        />
       </mesh>
     </group>
   )
