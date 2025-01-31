@@ -3,9 +3,13 @@ import { useThree, useFrame } from '@react-three/fiber'
 import { Vector3, Euler } from 'three'
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 
-const SPEED = 5
-const JUMP_FORCE = 4
+const SPEED = 2.5
+const JUMP_FORCE = 3
 const GRAVITY = 9.81
+const HEAD_BOB_SPEED = 12
+const HEAD_BOB_INTENSITY = 0.015
+const CAMERA_HEIGHT = 1.7
+const FOOTSTEP_INTERVAL = 0.5
 
 export function useFirstPersonControls() {
   const { camera, gl } = useThree()
@@ -86,7 +90,10 @@ export function useFirstPersonControls() {
     }
   }, [camera, gl])
 
-  useFrame((_, delta) => {
+  const lastFootstep = useRef(0)
+  const headBobPhase = useRef(0)
+
+  useFrame((state, delta) => {
     if (controls.current?.isLocked) {
       // Applica la gravità
       velocity.current.y -= GRAVITY * delta
@@ -96,13 +103,21 @@ export function useFirstPersonControls() {
       direction.current.x = Number(moveRight.current) - Number(moveLeft.current)
       direction.current.normalize()
 
-      // Applica il movimento
-      if (moveForward.current || moveBackward.current) {
-        velocity.current.z = -direction.current.z * SPEED
-      }
-      if (moveLeft.current || moveRight.current) {
-        velocity.current.x = -direction.current.x * SPEED
-      }
+      // Calcola la velocità effettiva
+      const isMoving = moveForward.current || moveBackward.current || moveLeft.current || moveRight.current
+      const currentSpeed = isMoving ? SPEED : 0
+
+      // Applica il movimento con accelerazione/decelerazione
+      velocity.current.x = THREE.MathUtils.lerp(
+        velocity.current.x,
+        -direction.current.x * currentSpeed,
+        0.1
+      )
+      velocity.current.z = THREE.MathUtils.lerp(
+        velocity.current.z,
+        -direction.current.z * currentSpeed,
+        0.1
+      )
 
       // Muovi la camera
       controls.current.moveRight(-velocity.current.x * delta)
@@ -111,17 +126,51 @@ export function useFirstPersonControls() {
       // Aggiorna la posizione Y
       camera.position.y += velocity.current.y * delta
 
+      // Head bobbing
+      if (isMoving && canJump.current) {
+        headBobPhase.current += delta * HEAD_BOB_SPEED
+        const bobOffset = Math.sin(headBobPhase.current) * HEAD_BOB_INTENSITY
+        camera.position.y = CAMERA_HEIGHT + bobOffset
+
+        // Footstep sound timing
+        if (state.clock.getElapsedTime() - lastFootstep.current > FOOTSTEP_INTERVAL) {
+          // Qui potremmo aggiungere il suono dei passi
+          lastFootstep.current = state.clock.getElapsedTime()
+        }
+      } else {
+        // Reset head bob quando fermi
+        headBobPhase.current = 0
+        if (canJump.current) {
+          camera.position.y = THREE.MathUtils.lerp(camera.position.y, CAMERA_HEIGHT, 0.1)
+        }
+      }
+
       // Collisione con il pavimento
-      if (camera.position.y < 1.7) {
+      if (camera.position.y < CAMERA_HEIGHT) {
         velocity.current.y = 0
-        camera.position.y = 1.7
+        camera.position.y = CAMERA_HEIGHT
         canJump.current = true
       }
 
-      // Limiti della stanza
+      // Limiti della stanza con smussamento
       const ROOM_SIZE = 1.9
-      camera.position.x = Math.max(-ROOM_SIZE, Math.min(ROOM_SIZE, camera.position.x))
-      camera.position.z = Math.max(-ROOM_SIZE, Math.min(ROOM_SIZE, camera.position.z))
+      const WALL_SMOOTHING = 0.1
+      
+      if (Math.abs(camera.position.x) > ROOM_SIZE - WALL_SMOOTHING) {
+        camera.position.x = THREE.MathUtils.lerp(
+          camera.position.x,
+          Math.sign(camera.position.x) * (ROOM_SIZE - WALL_SMOOTHING),
+          0.2
+        )
+      }
+      
+      if (Math.abs(camera.position.z) > ROOM_SIZE - WALL_SMOOTHING) {
+        camera.position.z = THREE.MathUtils.lerp(
+          camera.position.z,
+          Math.sign(camera.position.z) * (ROOM_SIZE - WALL_SMOOTHING),
+          0.2
+        )
+      }
     }
   })
 
