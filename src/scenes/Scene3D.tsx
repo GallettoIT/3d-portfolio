@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { ContactShadows, Environment } from '@react-three/drei'
 import { Group } from 'three'
 import { Computer } from '../components/Computer/Computer'
@@ -7,15 +7,32 @@ import { useFirstPersonControls } from '../hooks/useFirstPersonControls'
 
 export function Scene3D() {
   const roomRef = useRef<Group>(null)
-  const controls = useFirstPersonControls()
+
+  // Inizializza i controlli dopo che la scena è pronta
+  useEffect(() => {
+    const controls = useFirstPersonControls()
+    return () => {
+      // Cleanup dei controlli se necessario
+    }
+  }, [])
 
   return (
     <>
+      {/* Ambiente - renderizzato per primo */}
       <Environment preset="sunset" />
       
+      {/* Luci di base */}
+      <ambientLight intensity={0.4} />
+      <directionalLight position={[5, 5, 5]} intensity={0.5} castShadow />
+      
       <group ref={roomRef}>
+        {/* Struttura base della stanza */}
         <RoomStructure />
+
+        {/* Computer interattivo */}
         <Computer />
+
+        {/* Ombre di contatto - renderizzate per ultime */}
         <ContactShadows
           position={[0, 0.01, 0]}
           opacity={0.4}
