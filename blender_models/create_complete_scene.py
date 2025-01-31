@@ -11,9 +11,10 @@ if dir_path not in sys.path:
 import create_room
 import create_moka
 import create_vinyl_display
-import create_hammer_sickle
 import create_poster
 import setup_lighting
+import create_balcony_and_city
+import create_furniture_details
 
 def create_complete_scene():
     # Pulisci la scena
@@ -26,8 +27,13 @@ def create_complete_scene():
     # Aggiungi gli oggetti
     create_moka.create_moka()
     create_vinyl_display.create_vinyl_display()
-    create_hammer_sickle.create_hammer_and_sickle()
     create_poster.create_pulp_fiction_poster()
+    
+    # Aggiungi il balcone e la città
+    create_balcony_and_city.create_balcony_scene()
+    
+    # Aggiungi i mobili e i dettagli
+    create_furniture_details.create_all_furniture()
     
     # Configura l'illuminazione
     setup_lighting.setup_complete_lighting()

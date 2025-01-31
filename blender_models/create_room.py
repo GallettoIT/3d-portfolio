@@ -8,9 +8,9 @@ bpy.ops.object.delete()
 
 def create_room():
     # Dimensioni della stanza
-    width = 4
+    width = 6  # Larghezza aumentata
     height = 3
-    depth = 4
+    depth = 8  # Profondità aumentata per il layout rettangolare
     wall_thickness = 0.1
 
     # Crea il pavimento
