@@ -3,11 +3,15 @@ import { useThree } from '@react-three/fiber'
 import { PointerLockControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { usePhysics } from '../../hooks/usePhysics'
+import { useCollisions } from '../../hooks/useCollisions'
 
 export function CameraControls() {
   const { camera } = useThree()
   const [isLocked, setIsLocked] = useState(false)
   const { jump } = usePhysics(camera)
+  
+  // Applica le collisioni
+  useCollisions(camera)
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
