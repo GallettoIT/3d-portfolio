@@ -6,7 +6,7 @@ import { RoomStructure } from '../components/Room/Base/RoomStructure'
 import { useFirstPersonControls } from '../hooks/useFirstPersonControls'
 import { ENVIRONMENT_CONFIG } from '../config/environment.config'
 
-// Componente separato per l'environment per gestire meglio il caricamento
+// Componente separato per l'environment
 function EnvironmentWrapper() {
   return (
     <Suspense fallback={null}>
@@ -17,14 +17,7 @@ function EnvironmentWrapper() {
 
 export function Scene3D() {
   const roomRef = useRef<Group>(null)
-
-  // Inizializza i controlli dopo che la scena è pronta
-  useEffect(() => {
-    const controls = useFirstPersonControls()
-    return () => {
-      // Cleanup dei controlli se necessario
-    }
-  }, [])
+  useFirstPersonControls() // Ora ritorna i controlli ma non li memorizziamo
 
   return (
     <>
@@ -41,13 +34,8 @@ export function Scene3D() {
       />
       
       <group ref={roomRef}>
-        {/* Struttura base della stanza */}
         <RoomStructure />
-
-        {/* Computer interattivo */}
         <Computer />
-
-        {/* Ombre di contatto - renderizzate per ultime */}
         <ContactShadows
           position={[0, 0.01, 0]}
           opacity={0.4}
@@ -59,7 +47,6 @@ export function Scene3D() {
         />
       </group>
 
-      {/* Environment - renderizzato per ultimo e wrappato in Suspense */}
       <EnvironmentWrapper />
     </>
   )
