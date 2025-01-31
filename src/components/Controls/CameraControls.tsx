@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { useThree } from '@react-three/fiber'
 import { PointerLockControls } from '@react-three/drei'
 import * as THREE from 'three'
+import { usePhysics } from '../../hooks/usePhysics'
 
 export function CameraControls() {
   const { camera } = useThree()
   const [isLocked, setIsLocked] = useState(false)
+  const { jump } = usePhysics(camera)
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -17,7 +19,9 @@ export function CameraControls() {
 
       // Ottieni la direzione in cui la camera sta guardando
       camera.getWorldDirection(forward)
-      right.crossVectors(camera.up, forward)
+      forward.y = 0 // Mantieni il movimento orizzontale
+      forward.normalize()
+      right.crossVectors(camera.up, forward).normalize()
 
       switch (event.code) {
         case 'KeyW':
@@ -37,9 +41,7 @@ export function CameraControls() {
           camera.position.addScaledVector(right, speed)
           break
         case 'Space':
-          if (camera.position.y <= 1.7) {
-            camera.position.y += 0.5 // Semplice salto
-          }
+          jump()
           break
       }
     }
@@ -55,7 +57,7 @@ export function CameraControls() {
       window.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('pointerlockchange', handleLockChange)
     }
-  }, [camera, isLocked])
+  }, [camera, isLocked, jump])
 
   return (
     <PointerLockControls 
