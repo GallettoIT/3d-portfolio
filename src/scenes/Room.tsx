@@ -1,58 +1,22 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Environment, ContactShadows, OrbitControls } from '@react-three/drei'
+import { Environment, ContactShadows } from '@react-three/drei'
 import { Group } from 'three'
 import { Computer } from '../components/Computer/Computer'
+import { RoomModel } from '../models/Room/RoomModel'
+import { useFirstPersonControls } from '../hooks/useFirstPersonControls'
 
 export function Room() {
   const roomRef = useRef<Group>(null)
-
-  // Funzione per creare una parete
-  const Wall = ({ position, rotation, size = [4, 3, 0.1] }: any) => (
-    <mesh position={position} rotation={rotation} receiveShadow>
-      <boxGeometry args={size} />
-      <meshStandardMaterial color="#e0e0e0" />
-    </mesh>
-  )
-
-  // Funzione per creare il pavimento
-  const Floor = () => (
-    <mesh rotation-x={-Math.PI / 2} position={[0, 0, 0]} receiveShadow>
-      <planeGeometry args={[4, 4]} />
-      <meshStandardMaterial color="#f0f0f0" />
-    </mesh>
-  )
-
-  // Funzione per creare la scrivania
-  const Desk = () => (
-    <mesh position={[0, 0.4, 0]} receiveShadow castShadow>
-      <boxGeometry args={[1.5, 0.05, 0.8]} />
-      <meshStandardMaterial color="#8b4513" />
-      <mesh position={[0.65, -0.375, 0.35]} castShadow>
-        <boxGeometry args={[0.05, 0.75, 0.05]} />
-        <meshStandardMaterial color="#8b4513" />
-      </mesh>
-      <mesh position={[-0.65, -0.375, 0.35]} castShadow>
-        <boxGeometry args={[0.05, 0.75, 0.05]} />
-        <meshStandardMaterial color="#8b4513" />
-      </mesh>
-      <mesh position={[0.65, -0.375, -0.35]} castShadow>
-        <boxGeometry args={[0.05, 0.75, 0.05]} />
-        <meshStandardMaterial color="#8b4513" />
-      </mesh>
-      <mesh position={[-0.65, -0.375, -0.35]} castShadow>
-        <boxGeometry args={[0.05, 0.75, 0.05]} />
-        <meshStandardMaterial color="#8b4513" />
-      </mesh>
-    </mesh>
-  )
+  const controls = useFirstPersonControls()
 
   useFrame((state) => {
     if (!roomRef.current) return
     
-    // Qui possiamo aggiungere animazioni ambientali
+    // Animazioni ambientali
     const time = state.clock.getElapsedTime()
-    // Esempio: leggera oscillazione della luce ambientale
+    
+    // Oscillazione luce ambientale
     state.scene.traverse((object) => {
       if (object.type === 'AmbientLight') {
         (object as THREE.AmbientLight).intensity = 0.5 + Math.sin(time) * 0.05
@@ -79,23 +43,10 @@ export function Room() {
         castShadow
       />
 
-      {/* Controlli della camera */}
-      <OrbitControls
-        enableZoom={true}
-        enablePan={true}
-        enableRotate={true}
-        minPolarAngle={Math.PI / 4}
-        maxPolarAngle={Math.PI / 2}
-      />
+      {/* Modello della stanza */}
+      <RoomModel />
 
-      {/* Struttura della stanza */}
-      <Wall position={[0, 1.5, -2]} rotation={[0, 0, 0]} />
-      <Wall position={[-2, 1.5, 0]} rotation={[0, Math.PI / 2, 0]} />
-      <Wall position={[2, 1.5, 0]} rotation={[0, -Math.PI / 2, 0]} />
-      <Floor />
-
-      {/* Mobili */}
-      <Desk />
+      {/* Computer interattivo */}
       <Computer />
 
       {/* Ombre */}
